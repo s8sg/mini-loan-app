@@ -26,7 +26,7 @@ func InitLoanController(loanService service.LoanService) *LoanController {
 // @Description  Create a loan for a customer, responds with the newly created loan details
 // @Tags         Loans
 // @accept       json
-// @Param        token header  string true "Bearer customer-token"
+// @Param        Authorization header  string true "Bearer customer-token"
 // @Param        data body dto.LoanCreateRequest true "loan creation request"
 // @Produce      json
 // @Success      200 {object} dto.LoanDetails
@@ -66,7 +66,7 @@ func (h *LoanController) CreateLoanHandler(c *gin.Context) {
 // @Description  Responds with the all loan details belongs to customer
 // @Tags         Loans
 // @accept       json
-// @Param        token header  string true "Bearer customer-token"
+// @Param        Authorization header  string true "Bearer customer-token"
 // @Produce      json
 // @Success      200 {object} dto.GetAllLoansResponse
 // @Failure      400 {object} app_errors.ErrorResponse
@@ -100,7 +100,7 @@ func (h *LoanController) GetLoansHandler(c *gin.Context) {
 // @Description  approve a loan
 // @Tags         Loan Approval
 // @accept       json
-// @Param        token header  string true "Bearer admin-token"
+// @Param        Authorization header  string true "Bearer admin-token"
 // @Param        data body dto.LoanApproveRequest true "loan approval request"
 // @Produce      json
 // @Success      200 {object} dto.GenericSuccessResponse

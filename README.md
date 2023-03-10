@@ -26,6 +26,7 @@ To run the whole stack in docker
 ```bash
 docker-compose up -d
 ```
+Server uses port `:8085` by default
 
 #### Run locally
 
@@ -41,7 +42,7 @@ The run the app locally (this will require you to build locally)
 
 ## Swagger
 Once you run the stack you should be able to see the swagger at 
-[http://localhost:8081/docs/index.html](http://localhost:8081/docs/index.html)
+[http://localhost:8085/docs/index.html](http://localhost:8085/docs/index.html)
 
 ## Generate Swagger
 Swagger is generated with `github.com/swaggo/swag/cmd/swag`  

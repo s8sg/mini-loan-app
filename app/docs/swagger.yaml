@@ -131,7 +131,7 @@ paths:
       parameters:
       - description: Bearer admin-token
         in: header
-        name: token
+        name: Authorization
         required: true
         type: string
       - description: loan approval request
@@ -231,7 +231,7 @@ paths:
       parameters:
       - description: Bearer customer-token
         in: header
-        name: token
+        name: Authorization
         required: true
         type: string
       - description: loan creation request
@@ -266,7 +266,7 @@ paths:
       parameters:
       - description: Bearer admin-token
         in: header
-        name: token
+        name: Authorization
         required: true
         type: string
       - description: loan repayment request
@@ -305,7 +305,7 @@ paths:
       parameters:
       - description: Bearer customer-token
         in: header
-        name: token
+        name: Authorization
         required: true
         type: string
       produces:

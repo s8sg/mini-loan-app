@@ -32,7 +32,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Bearer admin-token",
-                        "name": "token",
+                        "name": "Authorization",
                         "in": "header",
                         "required": true
                     },
@@ -183,7 +183,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Bearer customer-token",
-                        "name": "token",
+                        "name": "Authorization",
                         "in": "header",
                         "required": true
                     },
@@ -236,7 +236,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Bearer admin-token",
-                        "name": "token",
+                        "name": "Authorization",
                         "in": "header",
                         "required": true
                     },
@@ -295,7 +295,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Bearer customer-token",
-                        "name": "token",
+                        "name": "Authorization",
                         "in": "header",
                         "required": true
                     }

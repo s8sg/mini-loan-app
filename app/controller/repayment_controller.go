@@ -26,7 +26,7 @@ func InitRepaymentController(repaymentService service.RepaymentService) *Repayme
 // @Description  repay a repayment, mark loan as paid when all repayment paid
 // @Tags         Loans
 // @accept       json
-// @Param        token header  string true "Bearer admin-token"
+// @Param        Authorization header  string true "Bearer admin-token"
 // @Param        data body dto.LoanRepaymentRequest true "loan repayment request"
 // @Produce      json
 // @Success      200 {object} dto.GenericSuccessResponse
