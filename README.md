@@ -55,15 +55,14 @@ swag init
 ```
 
 ## Run Unit Test
-Due to limited time I opted out for writing unit test for the core business module.  
-Tests are written for `loan_service`, `auth_service` and `repayment_service`.  
+> Due to limited time I opted out for writing integration test to validate contract
+> Since in go Integration tests are quite fast, 
+> I wrote integration test for all business logic with basic validation
 
-
-Similar approach can be used for testing other components
 
 ## Run Integration Test
 The integration test tests the primary business logic
-This runs the server in port 8080 and execute the happy flow
+This runs the server in port 8080 and execute the happy flow with some basc validations
 * User Login 
 * User creates a loan 
 * User lists all loan
@@ -72,8 +71,8 @@ This runs the server in port 8080 and execute the happy flow
 * User repay all repayments
 * User list all loan (PAID)
 ```bash
-cd app
-./integration_test.sh
+docker-compose up -d postgres
+cd app && ./integration_test.sh
 ```
 
 ## DB
@@ -94,7 +93,7 @@ This project is written keeping **SOLID** principle in mind.
 All layers are abstracted with `interfaces`.  
 This is also allows to mock dependencies (written as interface) to test specific module.
 
-The dependency of project module can be clearly seen at `main.go`
+The dependency of project module can be clearly seen at `config/server_config.go`
 ```
 1. init db connection                                  | DB
 2. init repository with db                             | Repository(DB)

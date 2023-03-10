@@ -33,7 +33,7 @@ func InitRepaymentController(repaymentService service.RepaymentService) *Repayme
 // @Failure      400 {object} app_errors.ErrorResponse
 // @Failure      404 {object} app_errors.ErrorResponse
 // @Failure      500 {object} app_errors.ErrorResponse
-// @Router       /loan/repayment [post]
+// @Router       /user/loan/repayment [post]
 func (h *RepaymentController) RepayLoanHandler(c *gin.Context) {
 	loanRepaymentRequest := &dto.LoanRepaymentRequest{}
 	err := c.BindJSON(loanRepaymentRequest)

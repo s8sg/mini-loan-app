@@ -51,7 +51,7 @@ func (server *Server) InitRoute(
 
 	// all /v1/auth is open
 	authRoute := router.Group("/api/v1/auth")
-	
+
 	authRoute.POST("/customer/login", authController.LoginAsCustomer)
 	authRoute.POST("/admin/login", authController.LoginAsAdmin)
 }

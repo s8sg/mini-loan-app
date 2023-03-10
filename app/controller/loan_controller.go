@@ -58,7 +58,7 @@ func (h *LoanController) CreateLoanHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, loanDetails)
+	c.JSON(http.StatusCreated, loanDetails)
 }
 
 // GetLoansHandler Get all loans for a customer
@@ -107,7 +107,7 @@ func (h *LoanController) GetLoansHandler(c *gin.Context) {
 // @Failure      400 {object} app_errors.ErrorResponse
 // @Failure      404 {object} app_errors.ErrorResponse
 // @Failure      500 {object} app_errors.ErrorResponse
-// @Router       /loan/approve [post]
+// @Router       /admin/loan/approve [post]
 func (h *LoanController) ApproveLoanHandler(c *gin.Context) {
 	loanApproveRequest := &dto.LoanApproveRequest{}
 	err := c.BindJSON(loanApproveRequest)

@@ -123,6 +123,45 @@ info:
   title: Mini Loan APP
   version: "1.0"
 paths:
+  /admin/loan/approve:
+    post:
+      consumes:
+      - application/json
+      description: approve a loan
+      parameters:
+      - description: Bearer admin-token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: loan approval request
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoanApproveRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GenericSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/app_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/app_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app_errors.ErrorResponse'
+      summary: Approve a loan
+      tags:
+      - Loan Approval
   /auth/admin/login:
     post:
       consumes:
@@ -183,46 +222,43 @@ paths:
       summary: Login user as a Customer
       tags:
       - Login
-  /loan/approve:
+  /user/loan:
     post:
       consumes:
       - application/json
-      description: approve a loan
+      description: Create a loan for a customer, responds with the newly created loan
+        details
       parameters:
-      - description: Bearer admin-token
+      - description: Bearer customer-token
         in: header
         name: token
         required: true
         type: string
-      - description: loan approval request
+      - description: loan creation request
         in: body
         name: data
         required: true
         schema:
-          $ref: '#/definitions/dto.LoanApproveRequest'
+          $ref: '#/definitions/dto.LoanCreateRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GenericSuccessResponse'
+            $ref: '#/definitions/dto.LoanDetails'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/app_errors.ErrorResponse'
-        "404":
-          description: Not Found
           schema:
             $ref: '#/definitions/app_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/app_errors.ErrorResponse'
-      summary: Approve a loan
+      summary: Create a loan for a customer
       tags:
-      - Loan Approval
-  /loan/repayment:
+      - Loans
+  /user/loan/repayment:
     post:
       consumes:
       - application/json
@@ -259,42 +295,6 @@ paths:
           schema:
             $ref: '#/definitions/app_errors.ErrorResponse'
       summary: Repay a repayment of loan
-      tags:
-      - Loans
-  /user/loan:
-    post:
-      consumes:
-      - application/json
-      description: Create a loan for a customer, responds with the newly created loan
-        details
-      parameters:
-      - description: Bearer customer-token
-        in: header
-        name: token
-        required: true
-        type: string
-      - description: loan creation request
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/dto.LoanCreateRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.LoanDetails'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/app_errors.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/app_errors.ErrorResponse'
-      summary: Create a loan for a customer
       tags:
       - Loans
   /user/loans:

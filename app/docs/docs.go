@@ -15,6 +15,65 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/loan/approve": {
+            "post": {
+                "description": "approve a loan",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Loan Approval"
+                ],
+                "summary": "Approve a loan",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer admin-token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "loan approval request",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoanApproveRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GenericSuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/app_errors.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/app_errors.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app_errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/admin/login": {
             "post": {
                 "description": "Responds with the bearer token with admin role",
@@ -107,9 +166,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/loan/approve": {
+        "/user/loan": {
             "post": {
-                "description": "approve a loan",
+                "description": "Create a loan for a customer, responds with the newly created loan details",
                 "consumes": [
                     "application/json"
                 ],
@@ -117,24 +176,24 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Loan Approval"
+                    "Loans"
                 ],
-                "summary": "Approve a loan",
+                "summary": "Create a loan for a customer",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Bearer admin-token",
+                        "description": "Bearer customer-token",
                         "name": "token",
                         "in": "header",
                         "required": true
                     },
                     {
-                        "description": "loan approval request",
+                        "description": "loan creation request",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.LoanApproveRequest"
+                            "$ref": "#/definitions/dto.LoanCreateRequest"
                         }
                     }
                 ],
@@ -142,17 +201,11 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GenericSuccessResponse"
+                            "$ref": "#/definitions/dto.LoanDetails"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/app_errors.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/app_errors.ErrorResponse"
                         }
@@ -166,7 +219,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/loan/repayment": {
+        "/user/loan/repayment": {
             "post": {
                 "description": "repay a repayment, mark loan as paid when all repayment paid",
                 "consumes": [
@@ -212,59 +265,6 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/app_errors.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/app_errors.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/loan": {
-            "post": {
-                "description": "Create a loan for a customer, responds with the newly created loan details",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Loans"
-                ],
-                "summary": "Create a loan for a customer",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer customer-token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "loan creation request",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.LoanCreateRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.LoanDetails"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/app_errors.ErrorResponse"
                         }
