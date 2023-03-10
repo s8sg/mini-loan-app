@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/s8sg/mini-loan-app/app/errors"
+	"github.com/s8sg/mini-loan-app/app/app_errors"
 	"github.com/s8sg/mini-loan-app/app/service"
 	"log"
 	"strings"
@@ -18,21 +18,21 @@ func AuthMiddleware(service service.AuthService, role string) gin.HandlerFunc {
 		token := c.GetHeader("Authorization")
 		if token == "" {
 			log.Println("No token provided")
-			errors.RespondWithGenericError(c, errors.Unauthorised)
+			app_errors.RespondWithError(c, app_errors.Unauthorised)
 			return
 		}
 
 		splitToken := strings.Split(token, "Bearer ")
 		if len(splitToken) != 2 {
 			log.Println("Invalid token provided")
-			errors.RespondWithGenericError(c, errors.Unauthorised)
+			app_errors.RespondWithError(c, app_errors.Unauthorised)
 			return
 		}
 
 		authContext, err := service.ValidateToken(splitToken[1], role)
 		if err != nil {
 			log.Println(err)
-			errors.RespondWithGenericError(c, errors.Unauthorised)
+			app_errors.RespondWithError(c, app_errors.Unauthorised)
 			return
 		}
 

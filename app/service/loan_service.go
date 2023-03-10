@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/s8sg/mini-loan-app/app/app_errors"
 	"github.com/s8sg/mini-loan-app/app/controller/dto"
 	responseDto "github.com/s8sg/mini-loan-app/app/dto"
 	repository "github.com/s8sg/mini-loan-app/app/repostory"
@@ -16,6 +17,14 @@ import (
 var (
 	// RepaymentFrequency is not fixed to 1 week
 	RepaymentFrequency = (time.Hour * 24) * 7
+)
+
+var (
+	loanInvalidStatus    = &app_errors.AppError{Code: 400, Message: "loan invalid status"}
+	loanNotPresent       = &app_errors.AppError{Code: 404, Message: "loan not found"}
+	loanAmountNotPresent = &app_errors.AppError{Code: 400, Message: "loan amount must be provided"}
+	loanTermInvalid      = &app_errors.AppError{Code: 400, Message: "loan term can;t be less than 1"}
+	invalidLoanId        = &app_errors.AppError{Code: 400, Message: "invalid loan id"}
 )
 
 type LoanService interface {
@@ -38,6 +47,18 @@ func GetLoanService(loanRepository repository.LoanRepository) LoanService {
 
 func (l LoanServiceImplementation) CreateLoan(customerId string,
 	loanCreateRequest *dto.LoanCreateRequest) (*responseDto.LoanDetails, error) {
+
+	// validate amount
+	if loanCreateRequest.Amount == 0 {
+		log.Printf("loan must be present")
+		return nil, loanAmountNotPresent
+	}
+
+	// validate term
+	if loanCreateRequest.Term < 1 {
+		log.Printf("term must be provide and should be greater than 1")
+		return nil, loanTermInvalid
+	}
 
 	// create loan details
 	loanDetails := &responseDto.LoanDetails{
@@ -73,7 +94,7 @@ func (l LoanServiceImplementation) CreateLoan(customerId string,
 	loanDetails, err := l.repo.CreateLoan(loanDetails)
 	if err != nil {
 		log.Printf("failed to create loan, error %v\n", err)
-		return nil, fmt.Errorf("failed to create loan: %v", err)
+		return nil, app_errors.InternalServerError
 	}
 
 	return loanDetails, nil
@@ -83,13 +104,19 @@ func (l LoanServiceImplementation) GetAllLoansForCustomer(customerId string) ([]
 	loanDetails, err := l.repo.GetAllLoansByCustomerId(customerId)
 	if err != nil {
 		log.Printf("failed to get loans for customer %s, error %v\n", customerId, err)
-		return nil, fmt.Errorf("failed to get loans, error: %v", err)
+		return nil, app_errors.InternalServerError
 	}
 	return loanDetails, nil
 }
 
 func (l LoanServiceImplementation) ApproveLoan(loanApproveRequest *dto.LoanApproveRequest) error {
 	loanId := loanApproveRequest.LoanId
+
+	// validate loanId
+	if loanId == "" {
+		log.Println("loan id not specified")
+		return invalidLoanId
+	}
 
 	ctx, cancelFunc := context.WithTimeout(context.Background(), TimeoutInSecond*time.Second)
 	defer cancelFunc()
@@ -101,34 +128,34 @@ func (l LoanServiceImplementation) ApproveLoan(loanApproveRequest *dto.LoanAppro
 	tx, err := l.repo.CreateTransaction(ctx, txOption)
 	if err != nil {
 		log.Println("failed to initiate transaction")
-		return err
+		return app_errors.InternalServerError
 	}
 
 	defer func() {
 		if err != nil {
 			log.Println("calling rollback for error " + err.Error())
-			tx.Rollback()
+			_ = tx.Rollback()
 			return
 		}
-		tx.Commit()
+		_ = tx.Commit()
 	}()
 
 	loanDetails, err := l.repo.GetLoanById(loanId, tx)
 	if err != nil {
 		log.Println("loan can not be fetched")
-		return err
+		return loanNotPresent
 	}
 
 	if loanDetails.Status != responseDto.LoanStatusPending {
 		log.Println("loan can not be approved, invalid status")
 		err = fmt.Errorf("loan can not be approved, invalid status")
-		return err
+		return loanInvalidStatus
 	}
 
 	err = l.repo.UpdateLoanStatus(loanId, responseDto.LoanStatusApproved, tx)
 	if err != nil {
 		log.Printf("failed to approve loan for loanId %s, error %v\n", loanId, err)
-		return fmt.Errorf("failed to approve loan, error: %v", err)
+		return app_errors.InternalServerError
 	}
 	return nil
 }

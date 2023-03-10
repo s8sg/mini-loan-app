@@ -3,8 +3,8 @@ package controller
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	serverError "github.com/s8sg/mini-loan-app/app/app_errors"
 	"github.com/s8sg/mini-loan-app/app/controller/dto"
-	serverError "github.com/s8sg/mini-loan-app/app/errors"
 	"github.com/s8sg/mini-loan-app/app/service"
 	"log"
 	"net/http"
@@ -26,13 +26,15 @@ func (h *RepaymentController) RepayLoanHandler(c *gin.Context) {
 	err := c.BindJSON(loanRepaymentRequest)
 	if err != nil {
 		log.Printf("RepayLoanHandler: failed to parse request, error %v\n", err)
-		serverError.RespondWithGenericError(c, serverError.BadRequest)
+		serverError.RespondWithError(c, serverError.BadRequest)
+		return
 	}
 
 	userIdContext, ok := c.Get("id")
 	if !ok {
 		log.Printf("GetLoansHandler: user context not initialized\n")
-		serverError.RespondWithGenericError(c, serverError.InternalServerError)
+		serverError.RespondWithError(c, serverError.BadRequest)
+		return
 	}
 
 	customerId := fmt.Sprint(userIdContext)
@@ -40,7 +42,8 @@ func (h *RepaymentController) RepayLoanHandler(c *gin.Context) {
 	err = h.repaymentService.Repay(customerId, loanRepaymentRequest)
 	if err != nil {
 		log.Printf("GetLoansHandler: failed to get loans %v\n", err)
-		serverError.RespondWithGenericError(c, serverError.InternalServerError)
+		serverError.RespondWithError(c, err)
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "loan repayment successful"})

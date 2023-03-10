@@ -3,8 +3,8 @@ package controller
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	serverError "github.com/s8sg/mini-loan-app/app/app_errors"
 	"github.com/s8sg/mini-loan-app/app/controller/dto"
-	serverError "github.com/s8sg/mini-loan-app/app/errors"
 	"github.com/s8sg/mini-loan-app/app/service"
 	"log"
 	"net/http"
@@ -26,14 +26,14 @@ func (h *LoanController) CreateLoanHandler(c *gin.Context) {
 	err := c.BindJSON(loanCreateRequest)
 	if err != nil {
 		log.Printf("CreateLoanHandler: failed to parse request, error %v\n", err)
-		serverError.RespondWithGenericError(c, serverError.BadRequest)
+		serverError.RespondWithError(c, serverError.BadRequest)
 		return
 	}
 
 	userIdContext, ok := c.Get("id")
 	if !ok {
 		log.Printf("CreateLoanHandler: user context not initialized\n")
-		serverError.RespondWithGenericError(c, serverError.InternalServerError)
+		serverError.RespondWithError(c, serverError.BadRequest)
 		return
 	}
 
@@ -42,7 +42,7 @@ func (h *LoanController) CreateLoanHandler(c *gin.Context) {
 	loanDetails, err := h.loanService.CreateLoan(customerId, loanCreateRequest)
 	if err != nil {
 		log.Printf("CreateLoanHandler: failed to create loan %v\n", err)
-		serverError.RespondWithGenericError(c, serverError.InternalServerError)
+		serverError.RespondWithError(c, err)
 		return
 	}
 
@@ -53,7 +53,7 @@ func (h *LoanController) GetLoansHandler(c *gin.Context) {
 	userIdContext, ok := c.Get("id")
 	if !ok {
 		log.Printf("GetLoansHandler: user context not initialized\n")
-		serverError.RespondWithGenericError(c, serverError.InternalServerError)
+		serverError.RespondWithError(c, serverError.BadRequest)
 		return
 	}
 
@@ -62,7 +62,7 @@ func (h *LoanController) GetLoansHandler(c *gin.Context) {
 	loanDetails, err := h.loanService.GetAllLoansForCustomer(customerId)
 	if err != nil {
 		log.Printf("GetLoansHandler: failed to get loans %v\n", err)
-		serverError.RespondWithGenericError(c, serverError.InternalServerError)
+		serverError.RespondWithError(c, err)
 		return
 	}
 
@@ -74,14 +74,14 @@ func (h *LoanController) ApproveLoanHandler(c *gin.Context) {
 	err := c.BindJSON(loanApproveRequest)
 	if err != nil {
 		log.Printf("ApproveLoanHandler: failed to parse request, error %v\n", err)
-		serverError.RespondWithGenericError(c, serverError.BadRequest)
+		serverError.RespondWithError(c, serverError.BadRequest)
 		return
 	}
 
 	err = h.loanService.ApproveLoan(loanApproveRequest)
 	if err != nil {
 		log.Printf("GetLoansHandler: failed to get loans %v\n", err)
-		serverError.RespondWithGenericError(c, serverError.InternalServerError)
+		serverError.RespondWithError(c, err)
 		return
 	}
 

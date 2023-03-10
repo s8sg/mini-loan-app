@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/s8sg/mini-loan-app/app/app_errors"
 	"github.com/s8sg/mini-loan-app/app/controller/dto"
 	repoDto "github.com/s8sg/mini-loan-app/app/dto"
 	repository "github.com/s8sg/mini-loan-app/app/repostory"
@@ -14,6 +15,15 @@ import (
 
 const (
 	TimeoutInSecond = 5
+)
+
+var (
+	repaymentNotFound      = &app_errors.AppError{Code: 404, Message: "repayment not found"}
+	amountNotProvided      = &app_errors.AppError{Code: 400, Message: "amount must be provided"}
+	repaymentIdNotProvided = &app_errors.AppError{Code: 400, Message: "repaymentId must be provided"}
+	invalidLoanStatus      = &app_errors.AppError{Code: 400, Message: "invalid loan status"}
+	invalidRepaymentStatus = &app_errors.AppError{Code: 400, Message: "invalid repayment status"}
+	amountNotSufficient    = &app_errors.AppError{Code: 400, Message: "amount not sufficient"}
 )
 
 type RepaymentService interface {
@@ -34,6 +44,16 @@ func GetRepaymentService(loanRepository repository.LoanRepository) RepaymentServ
 
 func (r RepaymentServiceImplementation) Repay(customerId string, request *dto.LoanRepaymentRequest) error {
 
+	if request.Amount == 0 {
+		log.Println("amount must be provided")
+		return amountNotProvided
+	}
+
+	if request.RepaymentID == "" {
+		log.Println("repaymentId must be provided")
+		return repaymentIdNotProvided
+	}
+
 	ctx, cancelFunc := context.WithTimeout(context.Background(), TimeoutInSecond*time.Second)
 	defer cancelFunc()
 
@@ -44,23 +64,23 @@ func (r RepaymentServiceImplementation) Repay(customerId string, request *dto.Lo
 	tx, err := r.repo.CreateTransaction(ctx, txOption)
 	if err != nil {
 		log.Println("failed to initiate transaction")
-		return err
+		return app_errors.InternalServerError
 	}
 
 	defer func() {
 		if err != nil {
 			log.Println("calling rollback for error " + err.Error())
-			tx.Rollback()
+			_ = tx.Rollback()
 			return
 		}
-		tx.Commit()
+		_ = tx.Commit()
 	}()
 
 	repaymentDetails, err := r.repo.GetRepaymentById(request.RepaymentID, tx)
 	if err != nil {
 		log.Println("failed to fetch repayment, err: " + err.Error())
 		err = fmt.Errorf("failed to fetch repayment, %v", err)
-		return err
+		return repaymentNotFound
 	}
 
 	loanID := repaymentDetails.LoanId
@@ -68,38 +88,42 @@ func (r RepaymentServiceImplementation) Repay(customerId string, request *dto.Lo
 	if err != nil {
 		log.Println("failed to fetch loan, err: " + err.Error())
 		err = fmt.Errorf("failed to fetch loam, %v", err)
-		return err
+		return app_errors.InternalServerError
 	}
 
 	// check if loan belongs to customer
 	if loanDetails.CustomerId != customerId {
 		log.Println("loan doesn't belongs to customer")
 		err = fmt.Errorf("loan doesn't belongs to customer")
-		return err
+		return repaymentNotFound
 	}
 
 	// check the lean status
 	if loanDetails.Status != repoDto.LoanStatusApproved {
 		log.Println("loan status invalid")
 		err = fmt.Errorf("loan has an invalid status %s", loanDetails.Status)
-		return err
+		return invalidLoanStatus
 	}
 
 	// check if the repayment status
 	if repaymentDetails.Status != repoDto.RepaymentStatusPending {
 		log.Println("repayment status invalid")
 		err = fmt.Errorf("repaymentis already paid")
-		return err
+		return invalidRepaymentStatus
 	}
 
 	// check of the repayment amount >= due amount
 	if decimal.NewFromFloat(request.Amount).LessThan(repaymentDetails.Amount) {
 		log.Println("invalid amount paid")
 		err = fmt.Errorf("repaymentis paid with invalid amount")
-		return err
+		return amountNotSufficient
 	}
 
-	r.repo.UpdateRepaymentStatus(repaymentDetails.RepaymentId, repoDto.RepaymentStatusPaid, tx)
+	err = r.repo.UpdateRepaymentStatus(repaymentDetails.RepaymentId, repoDto.RepaymentStatusPaid, tx)
+	if err != nil {
+		log.Println("failed to update repayment, error " + err.Error())
+		return app_errors.InternalServerError
+	}
 
 	repaidRepayments := getRepaidRepaymentCount(loanDetails)
 
@@ -109,7 +133,7 @@ func (r RepaymentServiceImplementation) Repay(customerId string, request *dto.Lo
 		err = r.repo.UpdateLoanStatus(loanID, repoDto.LOAN_STATUS_PAID, tx)
 		if err != nil {
 			log.Println("failed tp update loan status")
-			return err
+			return app_errors.InternalServerError
 		}
 	}
 

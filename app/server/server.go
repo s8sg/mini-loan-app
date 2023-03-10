@@ -4,12 +4,11 @@ import (
 	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
 	"github.com/s8sg/mini-loan-app/app/controller"
+	_ "github.com/s8sg/mini-loan-app/app/docs"
 	"github.com/s8sg/mini-loan-app/app/middleware"
 	"github.com/s8sg/mini-loan-app/app/service"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-
-	_ "github.com/s8sg/mini-loan-app/app/docs"
 )
 
 // Server : implements Server and controller.RestServer
@@ -38,19 +37,19 @@ func (server *Server) InitRoute(
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// all /v1/user is authenticated and authorized for customer
-	userRoute := server.router.Group("/v1/user",
+	userRoute := router.Group("/v1/user",
 		middleware.AuthMiddleware(authService, service.USER_TYPE_CUSTOMER))
 	userRoute.POST("/loan", loanController.CreateLoanHandler)
 	userRoute.GET("/loans", loanController.GetLoansHandler)
 	userRoute.POST("/loan/repayment", repaymentController.RepayLoanHandler)
 
 	// all /v1/admin is authenticated and authorized for admin
-	adminRoute := server.router.Group("/v1/admin",
+	adminRoute := router.Group("/v1/admin",
 		middleware.AuthMiddleware(authService, service.USER_TYPE_ADMIN))
 	adminRoute.POST("/loan/approve", loanController.ApproveLoanHandler)
 
 	// all /v1/auth is open
-	authRoute := server.router.Group("/v1/auth")
+	authRoute := router.Group("/v1/auth")
 	authRoute.POST("/customer/login", authController.LoginAsCustomer)
 	authRoute.POST("/admin/login", authController.LoginAsAdmin)
 }

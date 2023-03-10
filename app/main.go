@@ -55,7 +55,7 @@ func main() {
 	log.Println("Starting the server on " + port)
 	err = server.Start()
 	if err != nil {
-		log.Println("failed to listen on " + port)
+		log.Println("stopped listen on " + port)
 		os.Exit(1)
 	}
 }

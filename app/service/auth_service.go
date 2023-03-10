@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/s8sg/mini-loan-app/app/app_errors"
 	"log"
 	"time"
 )
@@ -14,6 +15,10 @@ const (
 
 var (
 	InvalidToken = fmt.Errorf("token is not valid")
+)
+
+var (
+	userIdMustBeProvided = &app_errors.AppError{Code: 400, Message: "username must be provided"}
 )
 
 type AuthContext struct {
@@ -43,6 +48,12 @@ func GetAuthService(secretKey string) AuthService {
 }
 
 func (service *AuthServiceImplementation) Login(userid string, userType string, secret string) (string, error) {
+
+	// check if userID not provided
+	if userid == "" {
+		return "", userIdMustBeProvided
+	}
+
 	// TODO: Login doesn't do any validation now,
 	// it can be enhanced to add validation of the secret passed
 
@@ -60,7 +71,8 @@ func (service *AuthServiceImplementation) Login(userid string, userType string, 
 	// Create the JWT string
 	tokenString, err := token.SignedString([]byte(service.secretKey))
 	if err != nil {
-		return "", err
+		log.Println("failed to generate token string, error ", err)
+		return "", app_errors.InternalServerError
 	}
 
 	return tokenString, nil
@@ -77,23 +89,23 @@ func (service *AuthServiceImplementation) ValidateToken(token string, role strin
 
 	if err != nil {
 		log.Printf("token parse failed %v\n", err)
-		return nil, InvalidToken
+		return nil, app_errors.Unauthorised
 	}
 
 	if claims, ok := parsedToken.Claims.(jwt.MapClaims); ok && parsedToken.Valid {
 		if claims["role"] == nil {
 			log.Printf("token parse failed: role is empty")
-			return nil, InvalidToken
+			return nil, app_errors.Unauthorised
 		}
 		if claims["id"] == nil {
 			log.Printf("token parse failed: id is empty")
-			return nil, InvalidToken
+			return nil, app_errors.Unauthorised
 		}
 
 		// validate role
 		if claims["role"] != role {
 			log.Printf("User role doesn't match, provided %v, required %v\n", claims["role"], role)
-			return nil, fmt.Errorf("user role doesn't match")
+			return nil, app_errors.Unauthorised
 		}
 
 		return &AuthContext{UserId: fmt.Sprint(claims["id"]), Role: role}, nil
