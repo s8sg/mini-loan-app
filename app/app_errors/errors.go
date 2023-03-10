@@ -15,6 +15,10 @@ func (err *AppError) Error() string {
 	return fmt.Sprintf("%s", err.Message)
 }
 
+type ErrorResponse struct {
+	Error string
+}
+
 // Generic error object
 var (
 	BadRequest          = &AppError{Code: 400, Message: "bad request"}
@@ -26,7 +30,7 @@ func RespondWithError(c *gin.Context, err error) {
 
 	appError, ok := err.(*AppError)
 	if !ok {
-		c.AbortWithStatusJSON(500, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(500, &ErrorResponse{Error: err.Error()})
 	}
-	c.AbortWithStatusJSON(appError.Code, gin.H{"error": appError.Message})
+	c.AbortWithStatusJSON(appError.Code, &ErrorResponse{Error: appError.Message})
 }

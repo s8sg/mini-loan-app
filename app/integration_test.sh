@@ -1,3 +1,3 @@
 #!/bin/sh
 
-go test $(go list ./... | grep /integration_test) -cover
+go test $(go list ./integration_test/...) -cover

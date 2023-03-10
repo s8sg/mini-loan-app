@@ -17,6 +17,7 @@ docker-compose build
 In order to build it outside Go `go1.20.2` is required.  
 Below commands build the app
 ```bash
+cd app
 ./build.sh
 ```
 

@@ -21,6 +21,18 @@ func InitLoanController(loanService service.LoanService) *LoanController {
 	return loanController
 }
 
+// CreateLoanHandler Create a loan for a customer
+// @Summary      Create a loan for a customer
+// @Description  Create a loan for a customer, responds with the newly created loan details
+// @Tags         Loans
+// @accept       json
+// @Param        token header  string true "Bearer customer-token"
+// @Param        data body dto.LoanCreateRequest true "loan creation request"
+// @Produce      json
+// @Success      200 {object} dto.LoanDetails
+// @Failure      400 {object} app_errors.ErrorResponse
+// @Failure      500 {object} app_errors.ErrorResponse
+// @Router       /user/loan [post]
 func (h *LoanController) CreateLoanHandler(c *gin.Context) {
 	loanCreateRequest := &dto.LoanCreateRequest{}
 	err := c.BindJSON(loanCreateRequest)
@@ -49,6 +61,20 @@ func (h *LoanController) CreateLoanHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, loanDetails)
 }
 
+// GetLoansHandler Get all loans for a customer
+// @Summary      Get all loans for a customer
+// @Description  Responds with the all loan details belongs to customer
+// @Tags         Loans
+// @accept       json
+// @Param        token header  string true "Bearer customer-token"
+// @Produce      json
+// @Success      200 {object} dto.GetAllLoansResponse
+// @Failure      400 {object} app_errors.ErrorResponse
+// @Failure      500 {object} app_errors.ErrorResponse
+// @Router       /user/loans [get]
+// @securityDefinitions.apiKey ApiKeyAuth
+// @in header
+// @name Authorization
 func (h *LoanController) GetLoansHandler(c *gin.Context) {
 	userIdContext, ok := c.Get("id")
 	if !ok {
@@ -66,9 +92,22 @@ func (h *LoanController) GetLoansHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"loans": loanDetails})
+	c.JSON(http.StatusOK, dto.GetAllLoansResponse{Loans: loanDetails})
 }
 
+// ApproveLoanHandler Approve a loan
+// @Summary      Approve a loan
+// @Description  approve a loan
+// @Tags         Loan Approval
+// @accept       json
+// @Param        token header  string true "Bearer admin-token"
+// @Param        data body dto.LoanApproveRequest true "loan approval request"
+// @Produce      json
+// @Success      200 {object} dto.GenericSuccessResponse
+// @Failure      400 {object} app_errors.ErrorResponse
+// @Failure      404 {object} app_errors.ErrorResponse
+// @Failure      500 {object} app_errors.ErrorResponse
+// @Router       /loan/approve [post]
 func (h *LoanController) ApproveLoanHandler(c *gin.Context) {
 	loanApproveRequest := &dto.LoanApproveRequest{}
 	err := c.BindJSON(loanApproveRequest)
@@ -85,5 +124,5 @@ func (h *LoanController) ApproveLoanHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "successfully approved loan"})
+	c.JSON(http.StatusOK, &dto.GenericSuccessResponse{Message: "successfully completed"})
 }

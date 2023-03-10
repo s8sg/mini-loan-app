@@ -20,6 +20,17 @@ func InitAuthController(authService service.AuthService) *AuthController {
 	return loginController
 }
 
+// LoginAsCustomer Login user as a Customer
+// @Summary      Login user as a Customer
+// @Description  Responds with the bearer token with customer role
+// @Tags         Login
+// @accept       json
+// @Param        data body dto.LoginRequest true "username is mandatory"
+// @Produce      json
+// @Success      200 {object} dto.LoginResponse
+// @Failure      400 {object} app_errors.ErrorResponse
+// @Failure      500 {object} app_errors.ErrorResponse
+// @Router       /auth/customer/login [post]
 func (h *AuthController) LoginAsCustomer(c *gin.Context) {
 	loginRequest := &dto.LoginRequest{}
 	err := c.BindJSON(loginRequest)
@@ -40,6 +51,17 @@ func (h *AuthController) LoginAsCustomer(c *gin.Context) {
 	c.JSON(http.StatusOK, loginResponse)
 }
 
+// LoginAsAdmin  Login user as an Admin
+// @Summary      Login user as an Admin
+// @Description  Responds with the bearer token with admin role
+// @Tags         Login
+// @accept       json
+// @Param        data body dto.LoginRequest true "username is mandatory"
+// @Produce      json
+// @Success      200 {object} dto.LoginResponse
+// @Failure      400 {object} app_errors.ErrorResponse
+// @Failure      500 {object} app_errors.ErrorResponse
+// @Router       /auth/admin/login [post]
 func (h *AuthController) LoginAsAdmin(c *gin.Context) {
 	loginRequest := &dto.LoginRequest{}
 	err := c.BindJSON(loginRequest)

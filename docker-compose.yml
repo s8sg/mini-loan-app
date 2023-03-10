@@ -1,11 +1,23 @@
-version: '3.7'
+version: '3.3'
 
 services:
   app:
+    container_name: app
     build: ./app
     image: mini-loan-app/app:latest
     ports:
-      - "8081:8080"
+      - "8085:8085"
+    environment:
+     - SERVER_PORT=8085
+     - DB_USER=root
+     - DB_PASSWORD=aspire123
+     - DB_HOST=postgres
+     - DB_NAME=mini_loan_app
+     - AUTH_HMAC_SIGNING_KEY=secret_key
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   postgres:
     container_name: postgres
     image: postgres:14.2-alpine
@@ -18,3 +30,8 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=aspire123
       - POSTGRES_DB=mini_loan_app
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d mini_loan_app" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5

@@ -1,7 +1,488 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "A loan management service API in Go using Gin framework",
+        "title": "Mini Loan APP",
+        "contact": {},
+        "version": "1.0"
     },
-    "paths": {}
+    "host": "localhost:8085",
+    "basePath": "/api/v1",
+    "paths": {
+        "/auth/admin/login": {
+            "post": {
+                "description": "Responds with the bearer token with admin role",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Login"
+                ],
+                "summary": "Login user as an Admin",
+                "parameters": [
+                    {
+                        "description": "username is mandatory",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/app_errors.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app_errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/customer/login": {
+            "post": {
+                "description": "Responds with the bearer token with customer role",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Login"
+                ],
+                "summary": "Login user as a Customer",
+                "parameters": [
+                    {
+                        "description": "username is mandatory",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/app_errors.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app_errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/loan/approve": {
+            "post": {
+                "description": "approve a loan",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Loan Approval"
+                ],
+                "summary": "Approve a loan",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer admin-token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "loan approval request",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoanApproveRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GenericSuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/app_errors.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/app_errors.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app_errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/loan/repayment": {
+            "post": {
+                "description": "repay a repayment, mark loan as paid when all repayment paid",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Loans"
+                ],
+                "summary": "Repay a repayment of loan",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer admin-token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "loan repayment request",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoanRepaymentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GenericSuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/app_errors.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/app_errors.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app_errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/loan": {
+            "post": {
+                "description": "Create a loan for a customer, responds with the newly created loan details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Loans"
+                ],
+                "summary": "Create a loan for a customer",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer customer-token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "loan creation request",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoanCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoanDetails"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/app_errors.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app_errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/loans": {
+            "get": {
+                "description": "Responds with the all loan details belongs to customer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Loans"
+                ],
+                "summary": "Get all loans for a customer",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer customer-token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetAllLoansResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/app_errors.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/app_errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "app_errors.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.GenericSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "successfully completed"
+                }
+            }
+        },
+        "dto.GetAllLoansResponse": {
+            "type": "object",
+            "properties": {
+                "loans": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.LoanDetails"
+                    }
+                }
+            }
+        },
+        "dto.LoanApproveRequest": {
+            "type": "object",
+            "properties": {
+                "loan-id": {
+                    "type": "string",
+                    "example": "b9348325-d798-4f81-85fc-336220380d4f"
+                }
+            }
+        },
+        "dto.LoanCreateRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number",
+                    "example": 300000
+                },
+                "term": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "dto.LoanDetails": {
+            "type": "object",
+            "properties": {
+                "created-timestamp": {
+                    "type": "string",
+                    "example": "2023-03-10T09:58:40.011177Z"
+                },
+                "customer-id": {
+                    "type": "string",
+                    "example": "user1"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "b9348325-d798-4f81-85fc-336220380d4f"
+                },
+                "repayments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.RepaymentDetails"
+                    }
+                },
+                "start-date": {
+                    "type": "string",
+                    "example": "2023-03-10T09:58:40.009375Z"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "PENDING"
+                },
+                "term": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "total-amount": {
+                    "type": "number",
+                    "example": 100000
+                },
+                "updated-timestamp": {
+                    "type": "string",
+                    "example": "2023-03-10T09:58:40.011177Z"
+                }
+            }
+        },
+        "dto.LoanRepaymentRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number",
+                    "example": 300000
+                },
+                "repayment-id": {
+                    "type": "string",
+                    "example": "393be183-ecc3-4a52-a035-f2e8a70d3711"
+                }
+            }
+        },
+        "dto.LoginRequest": {
+            "description": "login request (Secret is optional)",
+            "type": "object",
+            "properties": {
+                "secret": {
+                    "type": "string",
+                    "example": "dummy-value"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "user1"
+                }
+            }
+        },
+        "dto.LoginResponse": {
+            "description": "login response with token",
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "example": "\u003cbearer token\u003e"
+                }
+            }
+        },
+        "dto.RepaymentDetails": {
+            "type": "object",
+            "properties": {
+                "created-timestamp": {
+                    "type": "string",
+                    "example": "2023-03-10T10:36:48.431463Z"
+                },
+                "due-amount": {
+                    "type": "number",
+                    "example": 100000
+                },
+                "due-date": {
+                    "type": "string",
+                    "example": "2023-03-17T10:36:48.430739Z"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "9b02d974-2b09-4e42-8006-5e94ee93659a"
+                },
+                "loan-id": {
+                    "type": "string"
+                },
+                "number": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "status": {
+                    "type": "string",
+                    "example": "PENDING"
+                },
+                "updated-timestamp": {
+                    "type": "string",
+                    "example": "2023-03-10T10:36:48.431463Z"
+                }
+            }
+        }
+    }
 }

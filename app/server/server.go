@@ -25,7 +25,6 @@ func GetServer(port string) *Server {
 }
 
 // InitRoute : takes a list of controller and initialize the routes for the server
-// @title     Mini Loan APP
 func (server *Server) InitRoute(
 	authService service.AuthService,
 	loanController *controller.LoanController,
@@ -37,19 +36,22 @@ func (server *Server) InitRoute(
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// all /v1/user is authenticated and authorized for customer
-	userRoute := router.Group("/v1/user",
+	userRoute := router.Group("/api/v1/user",
 		middleware.AuthMiddleware(authService, service.USER_TYPE_CUSTOMER))
+
 	userRoute.POST("/loan", loanController.CreateLoanHandler)
 	userRoute.GET("/loans", loanController.GetLoansHandler)
 	userRoute.POST("/loan/repayment", repaymentController.RepayLoanHandler)
 
 	// all /v1/admin is authenticated and authorized for admin
-	adminRoute := router.Group("/v1/admin",
+	adminRoute := router.Group("/api/v1/admin",
 		middleware.AuthMiddleware(authService, service.USER_TYPE_ADMIN))
+
 	adminRoute.POST("/loan/approve", loanController.ApproveLoanHandler)
 
 	// all /v1/auth is open
-	authRoute := router.Group("/v1/auth")
+	authRoute := router.Group("/api/v1/auth")
+	
 	authRoute.POST("/customer/login", authController.LoginAsCustomer)
 	authRoute.POST("/admin/login", authController.LoginAsAdmin)
 }

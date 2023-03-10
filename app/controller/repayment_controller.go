@@ -21,6 +21,19 @@ func InitRepaymentController(repaymentService service.RepaymentService) *Repayme
 	return repaymentController
 }
 
+// RepayLoanHandler Repay a repayment of loan
+// @Summary      Repay a repayment of loan
+// @Description  repay a repayment, mark loan as paid when all repayment paid
+// @Tags         Loans
+// @accept       json
+// @Param        token header  string true "Bearer admin-token"
+// @Param        data body dto.LoanRepaymentRequest true "loan repayment request"
+// @Produce      json
+// @Success      200 {object} dto.GenericSuccessResponse
+// @Failure      400 {object} app_errors.ErrorResponse
+// @Failure      404 {object} app_errors.ErrorResponse
+// @Failure      500 {object} app_errors.ErrorResponse
+// @Router       /loan/repayment [post]
 func (h *RepaymentController) RepayLoanHandler(c *gin.Context) {
 	loanRepaymentRequest := &dto.LoanRepaymentRequest{}
 	err := c.BindJSON(loanRepaymentRequest)
@@ -46,5 +59,5 @@ func (h *RepaymentController) RepayLoanHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "loan repayment successful"})
+	c.JSON(http.StatusOK, &dto.GenericSuccessResponse{Message: "successfully completed"})
 }

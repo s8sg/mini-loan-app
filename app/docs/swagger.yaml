@@ -1,4 +1,329 @@
+basePath: /api/v1
+definitions:
+  app_errors.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  dto.GenericSuccessResponse:
+    properties:
+      message:
+        example: successfully completed
+        type: string
+    type: object
+  dto.GetAllLoansResponse:
+    properties:
+      loans:
+        items:
+          $ref: '#/definitions/dto.LoanDetails'
+        type: array
+    type: object
+  dto.LoanApproveRequest:
+    properties:
+      loan-id:
+        example: b9348325-d798-4f81-85fc-336220380d4f
+        type: string
+    type: object
+  dto.LoanCreateRequest:
+    properties:
+      amount:
+        example: 300000
+        type: number
+      term:
+        example: 1
+        type: integer
+    type: object
+  dto.LoanDetails:
+    properties:
+      created-timestamp:
+        example: "2023-03-10T09:58:40.011177Z"
+        type: string
+      customer-id:
+        example: user1
+        type: string
+      id:
+        example: b9348325-d798-4f81-85fc-336220380d4f
+        type: string
+      repayments:
+        items:
+          $ref: '#/definitions/dto.RepaymentDetails'
+        type: array
+      start-date:
+        example: "2023-03-10T09:58:40.009375Z"
+        type: string
+      status:
+        example: PENDING
+        type: string
+      term:
+        example: 1
+        type: integer
+      total-amount:
+        example: 100000
+        type: number
+      updated-timestamp:
+        example: "2023-03-10T09:58:40.011177Z"
+        type: string
+    type: object
+  dto.LoanRepaymentRequest:
+    properties:
+      amount:
+        example: 300000
+        type: number
+      repayment-id:
+        example: 393be183-ecc3-4a52-a035-f2e8a70d3711
+        type: string
+    type: object
+  dto.LoginRequest:
+    description: login request (Secret is optional)
+    properties:
+      secret:
+        example: dummy-value
+        type: string
+      username:
+        example: user1
+        type: string
+    type: object
+  dto.LoginResponse:
+    description: login response with token
+    properties:
+      token:
+        example: <bearer token>
+        type: string
+    type: object
+  dto.RepaymentDetails:
+    properties:
+      created-timestamp:
+        example: "2023-03-10T10:36:48.431463Z"
+        type: string
+      due-amount:
+        example: 100000
+        type: number
+      due-date:
+        example: "2023-03-17T10:36:48.430739Z"
+        type: string
+      id:
+        example: 9b02d974-2b09-4e42-8006-5e94ee93659a
+        type: string
+      loan-id:
+        type: string
+      number:
+        example: 1
+        type: integer
+      status:
+        example: PENDING
+        type: string
+      updated-timestamp:
+        example: "2023-03-10T10:36:48.431463Z"
+        type: string
+    type: object
+host: localhost:8085
 info:
   contact: {}
-paths: {}
+  description: A loan management service API in Go using Gin framework
+  title: Mini Loan APP
+  version: "1.0"
+paths:
+  /auth/admin/login:
+    post:
+      consumes:
+      - application/json
+      description: Responds with the bearer token with admin role
+      parameters:
+      - description: username is mandatory
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/app_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app_errors.ErrorResponse'
+      summary: Login user as an Admin
+      tags:
+      - Login
+  /auth/customer/login:
+    post:
+      consumes:
+      - application/json
+      description: Responds with the bearer token with customer role
+      parameters:
+      - description: username is mandatory
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/app_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app_errors.ErrorResponse'
+      summary: Login user as a Customer
+      tags:
+      - Login
+  /loan/approve:
+    post:
+      consumes:
+      - application/json
+      description: approve a loan
+      parameters:
+      - description: Bearer admin-token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: loan approval request
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoanApproveRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GenericSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/app_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/app_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app_errors.ErrorResponse'
+      summary: Approve a loan
+      tags:
+      - Loan Approval
+  /loan/repayment:
+    post:
+      consumes:
+      - application/json
+      description: repay a repayment, mark loan as paid when all repayment paid
+      parameters:
+      - description: Bearer admin-token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: loan repayment request
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoanRepaymentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GenericSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/app_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/app_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app_errors.ErrorResponse'
+      summary: Repay a repayment of loan
+      tags:
+      - Loans
+  /user/loan:
+    post:
+      consumes:
+      - application/json
+      description: Create a loan for a customer, responds with the newly created loan
+        details
+      parameters:
+      - description: Bearer customer-token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: loan creation request
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoanCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.LoanDetails'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/app_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app_errors.ErrorResponse'
+      summary: Create a loan for a customer
+      tags:
+      - Loans
+  /user/loans:
+    get:
+      consumes:
+      - application/json
+      description: Responds with the all loan details belongs to customer
+      parameters:
+      - description: Bearer customer-token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetAllLoansResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/app_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app_errors.ErrorResponse'
+      summary: Get all loans for a customer
+      tags:
+      - Loans
 swagger: "2.0"
